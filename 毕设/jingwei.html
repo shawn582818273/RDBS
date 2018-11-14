@@ -1,0 +1,135 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <title>jingwei</title>
+    <link rel="stylesheet" href="http://cache.amap.com/lbs/static/main1119.css"/>
+    <script type="text/javascript"
+            src="http://webapi.amap.com/maps?v=1.4.4&key=d3176f9bf6df93dcb64d7f5733eae3d9&plugin=AMap.Autocomplete"></script>
+
+	<!--引入UI组件库（1.0版本） -->
+	<script src="//webapi.amap.com/ui/1.0/main.js"></script>
+    <script type="text/javascript" src="http://cache.amap.com/lbs/static/addToolbar.js"></script>
+ 
+</script>
+</head>
+<body>
+<div id="container"></div>
+<div id="myPageTop">
+    <table>
+        <tr>
+            <td>
+                <label>按关键字搜索：</label>
+            </td>
+            <td class="column2">
+                <label>左击获取经纬度：</label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="text" placeholder="请输入关键字进行搜索" id="tipinput">
+            </td>
+            <td class="column2">
+                <input type="text" readonly="true" id="lnglat">
+            </td>
+        </tr>
+    </table>
+</div>
+<script type="text/javascript">
+    var map = new AMap.Map("container", {
+        resizeEnable: true,
+        zoom: 10,
+        center: [200.480983, 40.0958]
+    });
+    // 为地图注册click事件获取鼠标点击出的经纬度坐标
+    var clickEventListener = map.on('click', function(e) {
+        document.getElementById("lnglat").value = e.lnglat.getLng() + ',' + e.lnglat.getLat()
+    });
+    var auto = new AMap.Autocomplete({
+        input: "tipinput"
+    });
+    AMap.event.addListener(auto, "select", select);//注册监听，当选中某条记录时会触发
+    function select(e) {
+        if (e.poi && e.poi.location) {
+            map.setZoom(15);
+            map.setCenter(e.poi.location);
+        }
+    }
+
+    map.plugin(['AMap.ToolBar','AMap.Geolocation','AMap.AdvancedInfoWindow'], function () {
+        //创建并添加工具条控件
+            var toolBar = new AMap.ToolBar();
+            map.addControl(toolBar);
+            var geolocation = new AMap.Geolocation({
+            enableHighAccuracy: true,//是否使用高精度定位，默认:true
+            timeout: 10000,          //超过10秒后停止定位，默认：无穷大
+            maximumAge: 0,           //定位结果缓存0毫秒，默认：0
+            convert: true,           //自动偏移坐标，偏移后的坐标为高德坐标，默认：true
+            showButton: true,        //显示定位按钮，默认：true
+            buttonPosition: 'LB',    //定位按钮停靠位置，默认：'LB'，左下角
+            buttonOffset: new AMap.Pixel(10, 20),//定位按钮与设置的停靠位置的偏移量，默认：Pixel(10, 20)
+            showMarker: true,        //定位成功后在定位到的位置显示点标记，默认：true
+            showCircle: true,        //定位成功后用圆圈表示定位精度范围，默认：true
+            panToLocation: true,     //定位成功后将定位到的位置作为地图中心点，默认：true
+            zoomToAccuracy:true      //定位成功后调整地图视野范围使定位位置及精度范围视野内可见，默认：false
+        });
+        map.addControl(geolocation);
+        geolocation.getCurrentPosition();
+        AMap.event.addListener(geolocation, 'complete', onComplete);//返回定位信息
+        AMap.event.addListener(geolocation, 'error', onError);      //返回定位出错信息
+        });
+        // var infowindow = new AMap.AdvancedInfoWindow({
+        //       content: '<div class="info-title">高德地图</div><div class="info-content">'+
+        //             '<img src="http://webapi.amap.com/images/amap.jpg">'+
+        //             '高德是中国领先的数字地图内容、导航和位置服务解决方案提供商。<br>'+
+        //             '<a target="_blank" href="http://mobile.amap.com/">点击下载高德地图</a></div>',
+        //       offset: new AMap.Pixel(0, -30)
+        //     });
+        //     infowindow.open(map,[116.359706,39.990333]);
+        var icon = new AMap.Icon
+        ({
+        image : 'http://vdata.amap.com/icons/b18/1/2.png',//24px*24px
+        //icon可缺省，缺省时为默认的蓝色水滴图标，
+        size : new AMap.Size(24,24)
+		});
+    	var marker1 = new AMap.Marker
+    	(
+    	{position: [116.361466,39.989277],//marker所在的位置
+    	icon :icon ,
+    	//content:1,
+    	map:map//创建时直接赋予map属性
+    	}
+    	);
+    	// var marker2 = new AMap.Marker
+    	// (
+    	// {position: [116.361466,39.989277],//marker所在的位置
+    	// icon :icon ,
+    	// map:map//创建时直接赋予map属性
+    	// }
+    	// );
+    	// var marker1 = new AMap.Marker
+    	// (
+    	// {position: [116.361466,39.989277],//marker所在的位置
+    	// icon :icon ,
+    	// map:map//创建时直接赋予map属性
+    	// }
+    	// );
+    	// var marker1 = new AMap.Marker
+    	// (
+    	// {position: [116.361466,39.989277],//marker所在的位置
+    	// icon :icon ,
+    	// map:map//创建时直接赋予map属性
+    	// }
+    	// );
+    	// var marker2 = new AMap.Marker
+    	// (
+    	// {position: [116.357979,39.989158],//marker所在的位置
+    	// map:map//创建时直接赋予map属性
+    	// }
+    	// );
+    
+</script>
+</body>
+</html>

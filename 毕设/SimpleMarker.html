@@ -1,0 +1,198 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <title>异步加载地图</title>
+    <link rel="stylesheet" href="http://cache.amap.com/lbs/static/main1119.css"/>
+    <style>
+        .info-title{
+            color: white;
+            font-size: 14px;
+            background-color: blue;
+            line-height: 26px;
+            padding: 0px 0 0 6px;
+            font-weight: lighter;
+            letter-spacing: 1px
+        }
+        .info-content{
+            padding: 4px;
+            color: #666666;
+            line-height: 23px;
+            font: 12px Helvetica, 'Hiragino Sans GB', 'Microsoft Yahei', '微软雅黑', Arial;
+        }
+        .info-content img{
+            float: left;
+            margin: 3px;
+        }
+        .marker {
+            color: #ff6600;
+            padding: 4px 10px;
+            border: 1px solid #fff;
+            white-space: nowrap;
+            font-size: 12px;
+            font-family: "";
+            background-color: #0066ff;
+        }
+    </style>    
+</head>
+<body>
+<div id="container"></div>
+<script src="http://webapi.amap.com/maps?v=1.4.5&key=d3176f9bf6df93dcb64d7f5733eae3d9&callback=init&&plugin=AMap.Autocomplete,AMap.PlaceSearch,AMap.AdvancedInfoWindow"></script>
+<script type="text/javascript" src="http://cache.amap.com/lbs/static/addToolbar.js"></script>
+<script>
+
+    function init()
+    {
+        var map = new AMap.Map('container', {
+            resizeEnable:true,
+            center: [116.359512,39.988541],
+            zoom: 50,
+            isHotspot: true
+        });
+        map.plugin(["AMap.ToolBar"], function() {
+            map.addControl(new AMap.ToolBar());
+        });
+        map.setLimitBounds(map.getBounds());
+        var clickEventListener = map.on('click', function(e) {
+        document.getElementById("lnglat").value = e.lnglat.getLng() + ',' + e.lnglat.getLat()
+        var marker1 = new AMap.Marker({
+            icon: "http://webapi.amap.com/theme/v1.3/markers/n/mark_b.png",
+            position: [e.lnglat.getLng(),e.lnglat.getLat()],
+            map:map
+        });
+        });
+        var auto = new AMap.Autocomplete({
+            input: "tipinput"
+        });
+        AMap.event.addListener(auto, "select", select);//注册监听，当选中某条记录时会触发
+        function select(e) {
+            if (e.poi && e.poi.location) {
+                map.setZoom(15);
+                map.setCenter(e.poi.location);
+            }
+        }
+        var placeSearch = new AMap.PlaceSearch();  //构造地点查询类
+        var infoWindow=new AMap.AdvancedInfoWindow({});
+        map.on('hotspotclick', function(result) {
+            placeSearch.getDetails(result.id, function(status, result) {
+                if (status === 'complete' && result.info === 'OK') {
+                    placeSearch_CallBack(result);
+                }
+            });
+        });
+        //回调函数
+        function placeSearch_CallBack(data) { //infoWindow.open(map, result.lnglat);
+            var poiArr = data.poiList.pois;
+            var location = poiArr[0].location;
+            infoWindow.setContent(createContent(poiArr[0]));
+            infoWindow.open(map,location);
+        }
+        function createContent(poi) {  //信息窗体内容
+            var s = [];
+            s.push('<div class="info-title">'+poi.name+'</div><div class="info-content">'+"地址：" + poi.address);
+            s.push("电话：" + poi.tel);
+            s.push("类型：" + poi.type);
+            s.push('<div>');
+            return s.join("<br>");
+        }
+        // 自定义点标记内容
+        var markerContent = document.createElement("div");
+
+        // 点标记中的图标
+        var markerImg = document.createElement("img");
+        markerImg.className = "markerlnglat";
+        markerImg.src = "http://webapi.amap.com/theme/v1.3/markers/n/mark_r.png";
+        markerContent.appendChild(markerImg);
+
+        // 点标记中的文本
+        var markerSpan = document.createElement("span");
+        markerSpan.className = 'marker';
+        markerSpan.innerHTML = "A";
+        markerContent.appendChild(markerSpan);
+
+       
+        // var n=11;
+        // var markers=new array(n);
+        // for (var i = 0; i <n; i++) 
+        // {
+        //     marker = new AMap.Marker
+        // }
+        var marker1 = new AMap.Marker({
+            icon: "http://webapi.amap.com/theme/v1.3/markers/n/mark_b.png",
+            position: [116.36073,39.988405],
+            map:map
+        });
+        var marker2 = new AMap.Marker({
+            icon:"http://webapi.amap.com/theme/v1.3/markers/n/mark_r.png",
+            position:[116.360693,39.988738],
+            map:map
+        });
+        marker2.setContent(markerContent); //更新点标记内容
+        marker2.setPosition([116.36146,39.989293]); //更新点标记位置
+        var lineArr = [
+            [116.368904, 39.913423],
+            [116.382122, 39.901176],
+            [116.387271, 39.912501],
+            [116.398258, 39.904600]
+        ];
+        var polyline = new AMap.Polyline({
+            path: lineArr,          //设置线覆盖物路径
+            strokeColor: "#3366FF", //线颜色
+            strokeOpacity: 1,       //线透明度
+            strokeWeight: 5,        //线宽
+            strokeStyle: "solid",   //线样式
+            strokeDasharray: [10, 5] //补充线样式
+        });
+        polyline.setMap(map);
+
+        var polygonArr = new Array();//多边形覆盖物节点坐标数组
+        polygonArr.push([116.403322, 39.920255]);
+        polygonArr.push([116.410703, 39.897555]);
+        polygonArr.push([116.402292, 39.892353]);
+        polygonArr.push([116.389846, 39.891365]);
+        var  polygon = new AMap.Polygon({
+            path: polygonArr,//设置多边形边界路径
+            strokeColor: "#FF33FF", //线颜色
+            strokeOpacity: 0.2, //线透明度
+            strokeWeight: 3,    //线宽
+            fillColor: "#1791fc", //填充色
+            fillOpacity: 0.35//填充透明度
+        });
+        polygon.setMap(map);
+
+        var circle = new AMap.Circle({
+            center: new AMap.LngLat("116.403322", "39.920255"),// 圆心位置
+            radius: 1000, //半径
+            strokeColor: "#F33", //线颜色
+            strokeOpacity: 1, //线透明度
+            strokeWeight: 3, //线粗细度
+            fillColor: "#ee2200", //填充颜色
+            fillOpacity: 0.35//填充透明度
+        });
+        circle.setMap(map);
+    }
+</script>
+<div id="myPageTop">
+    <table>
+        <tr>
+            <td>
+                <label>按关键字搜索：</label>
+            </td>
+            <td class="column2">
+                <label>左击获取经纬度：</label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="text" placeholder="请输入关键字进行搜索" id="tipinput">
+            </td>
+            <td class="column2">
+                <input type="text" readonly="true" id="lnglat">
+            </td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>

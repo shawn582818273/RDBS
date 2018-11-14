@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>地图浏览</title>
+    <meta charset="utf-8">
+</head>
+<body>
+<div style="height: 600px;" id="canvas"/>
+<script src="http://demo.qunee.com/lib/qunee-min.js?v=1.8.1"></script>
+<!--<script src="qunee-min.js?v=1"></script>-->
+<script src="http://map.qunee.com/src/MapChart.js"></script>
+<script src="http://map.qunee.com/src/topojson.js"></script>
+<script>
+    var map = new Q.MapChart('canvas');
+    map.loadTopoJSON('data/shengjie.json', {
+        zIndex: -10, onfinish: function (map) {
+            map.zoomToOverview();
+            map.createMapNode('hello map', 105, 35);
+        }
+    });
+</script>
+</body>
+</html>
